@@ -5,6 +5,6 @@ from scipy.signal import square
 from sklearn.datasets import *
 from sklearn.metrics import accuracy_score
 
-def DecisionTree(X, train_y, test_y):
-    yy = train_y
+def DecisionTree(train_X, test_X, train_y, test_y):
+    yy = test_y.copy()
     return yy

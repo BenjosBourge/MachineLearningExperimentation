@@ -15,12 +15,6 @@ def setup_screen(height, width):
     pygame.display.set_caption("NN experimentation")
     return screen
 
-def searched_func(x):
-    return x*x - 4
-
-def genetic_func(x, tree):
-    return tree.func(x)
-
 def get_color_per_result(y, yy):
     color = (255, 255, 255)
     if y == 1:
@@ -35,7 +29,30 @@ def get_color_per_result(y, yy):
             color = (255, 0, 0)  # TN = RED
     return color
 
+def split_train_test(X, y, ratio):
+    r_indexs = np.random.choice(range(0, len(X)), size=int(len(X)*ratio), replace=False).tolist()
+    train_X = []
+    train_y = []
+    test_X = []
+    test_y = []
+    for i in range(len(X)):
+        found = False
+        for j in r_indexs:
+            if j == i:
+                found = True
+                break
+        if not found:
+            test_X.append(X[i])
+            test_y.append(y[i])
+        else:
+            train_X.append(X[i])
+            train_y.append(y[i])
+    return train_X, test_X, train_y, test_y
+
+
+
 def draw_square(screen, xsquare, ysquare, dimensions, square_size, X, y, yy, name):
+    np.random.seed()
     font = pygame.font.SysFont(None, 24)
     min_x = dimensions[0]
     min_y = dimensions[1]
@@ -69,6 +86,8 @@ def main():
     X, y = make_moons(n_samples=200, noise=0.2) #make_blobs(n_samples=100, n_features=2, centers=2, random_state=0)
     y = y.reshape((y.shape[0], 1))
 
+    train_X, test_X, train_y, test_y = split_train_test(X, y, 0.8)
+
     min_x = 0
     max_x = 0
     min_y = 0
@@ -90,23 +109,38 @@ def main():
     dimensions = (min_x, min_y, max_x, max_y)
 
     running = True
+    timer = 0.
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
         deltaTime = clock.get_time() / 1000
+        timer += deltaTime
+        if timer > 2:
+            timer = 0.
+            train_X, test_X, train_y, test_y = split_train_test(X, y, 0.8)
 
         screen.fill((50, 50, 50))
 
         text = font.render(f"TP = GREEN, FN = PURPLE, FP = YELLOW, TN = RED", True, (255, 255, 255))
         screen.blit(text, (300, 10))
 
+        trX = train_X
+        teX = test_X
+        trY = train_y
+        teY = test_y
+        if timer < 1.:
+            trX = X
+            teX = X
+            trY = y
+            teY = y
+
         draw_square(screen, 50, 100, dimensions, 200, X, y, y, "Truth")
-        draw_square(screen, 400, 100, dimensions, 200, X, y, KNN(X, y, y), "KNN")
-        draw_square(screen, 750, 100, dimensions, 200, X, y, Kmeans(X, y, y), "K-Means")
-        draw_square(screen, 50, 400, dimensions, 200, X, y, NaiveBayes(X, y, y), "Naives Bayes")
-        draw_square(screen, 400, 400, dimensions, 200, X, y, DecisionTree(X, y, y), "Decision Tree")
-        draw_square(screen, 750, 400, dimensions, 200, X, y, y, "Unknown")
+        draw_square(screen, 400, 100, dimensions, 200, teX, teY, KNN(trX, teX, trY, teY), "KNN")
+        draw_square(screen, 750, 100, dimensions, 200, teX, teY, Kmeans(trX, teX, trY, teY), "K-Means")
+        draw_square(screen, 50, 400, dimensions, 200, teX, teY, NaiveBayes(trX, teX, trY, teY), "Naives Bayes")
+        draw_square(screen, 400, 400, dimensions, 200, teX, teY, DecisionTree(trX, teX, trY, teY), "Decision Tree")
+        draw_square(screen, 750, 400, dimensions, 200, test_X, test_y, test_y, "Testing Sample")
 
         pygame.display.flip()
         clock.tick(60)
