@@ -110,6 +110,7 @@ def main():
 
     running = True
     timer = 0.
+    seed = np.random.randint(1000000)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -119,6 +120,7 @@ def main():
         if timer > 2:
             timer = 0.
             train_X, test_X, train_y, test_y = split_train_test(X, y, 0.8)
+            seed = np.random.randint(1000000)
 
         screen.fill((50, 50, 50))
 
@@ -137,7 +139,7 @@ def main():
 
         draw_square(screen, 50, 100, dimensions, 200, X, y, y, "Truth")
         draw_square(screen, 400, 100, dimensions, 200, teX, teY, KNN(trX, teX, trY, teY, 3), "KNN")
-        draw_square(screen, 750, 100, dimensions, 200, teX, teY, Kmeans(trX, teX, trY, teY), "K-Means")
+        draw_square(screen, 750, 100, dimensions, 200, teX, teY, Kmeans(trX, teX, trY, teY, 8, seed), "K-Means")
         draw_square(screen, 50, 400, dimensions, 200, teX, teY, NaiveBayes(trX, teX, trY, teY), "Naives Bayes")
         draw_square(screen, 400, 400, dimensions, 200, teX, teY, DecisionTree(trX, teX, trY, teY), "Decision Tree")
         draw_square(screen, 750, 400, dimensions, 200, test_X, test_y, test_y, "Testing Sample")
