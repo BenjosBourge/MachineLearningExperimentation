@@ -136,7 +136,7 @@ def main():
             teY = y
 
         draw_square(screen, 50, 100, dimensions, 200, X, y, y, "Truth")
-        draw_square(screen, 400, 100, dimensions, 200, teX, teY, KNN(trX, teX, trY, teY), "KNN")
+        draw_square(screen, 400, 100, dimensions, 200, teX, teY, KNN(trX, teX, trY, teY, 3), "KNN")
         draw_square(screen, 750, 100, dimensions, 200, teX, teY, Kmeans(trX, teX, trY, teY), "K-Means")
         draw_square(screen, 50, 400, dimensions, 200, teX, teY, NaiveBayes(trX, teX, trY, teY), "Naives Bayes")
         draw_square(screen, 400, 400, dimensions, 200, teX, teY, DecisionTree(trX, teX, trY, teY), "Decision Tree")
